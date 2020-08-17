@@ -1,0 +1,6 @@
+# Python 3 Dependencies:
+
+numpy
+matplotlib
+gym
+tensorflow
