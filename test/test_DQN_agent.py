@@ -10,10 +10,10 @@ from environment.gridworld import *
 # @File : test_DQN_agent.py
 class TestDQNAgent(TestCase):
     def setUp(self):
-        # self.env = gym.make("MountainCar-v0")
-        self.env = SimpleGridWorld()
+        self.env = gym.make("MountainCar-v0")
+        # self.env = SimpleGridWorld()
         self.env.reset()
-        self.max_episode = 500
+        self.max_episode = 1000
         self.agent = DQNAgent(self.env)
         self.agent.reset()
 
@@ -21,4 +21,4 @@ class TestDQNAgent(TestCase):
         self.env.close()
 
     def test_learning(self):
-        self.agent.learning()
+        self.agent.learning(max_episode=self.max_episode, render_episode=self.max_episode - 2)

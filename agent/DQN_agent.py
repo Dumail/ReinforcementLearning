@@ -22,16 +22,19 @@ class DQNAgent(Agent):
         :param env: 环境
         :param mem_size: 智能体记忆大小
         """
-        # 获取环境状态空间和行为空间的维度，分为一维离散的Discrete和连续的Box两种类型
         super().__init__(env)
-        self.action_dim = env.action_space.n if len(env.action_space.shape) == 0 else env.action_space.shape[0]
-        self.state_dim = env.observation_space.n if len(env.observation_space.shape) == 0 else \
-            env.observation_space.shape[0]
+
+        self.action_dim = env.action_space.n  # 行为空间的维数为行为动作的种类数
+        # 获取环境状态空间的维度，分为一维离散的Discrete和连续的Box两种类型
+        self.state_dim = 1 if len(env.observation_space.shape) == 0 else env.observation_space.shape[0]
 
         self.model = self._create_model()  # 近似Q函数的网络模型
-        self.mem_size = mem_size
+        self.target_model = self._create_model()  # 目标Q网络加速收敛
+        self.train_times = 0  # 模型训练的次数
+        self.update_freq = 200  # 更新目标网络的频率，每训练多少次更新一次
+
+        self.mem_size = mem_size  # 记忆容量
         self.mem_queue = deque(maxlen=self.mem_size)  # 使用队列对智能体的经验进行记忆
-        # TODO 双Q网络加速收敛
 
     def _create_model(self):
         """
@@ -46,7 +49,7 @@ class DQNAgent(Agent):
 
     def policy(self, state, use_epsilon, episode):
         """
-        根据贪心策略在行为空间中选取动作
+        根据贪心策略在行为空间中选取动作 TODO 支持连续动作空间
 
         :param state: 当前的状态
         :param use_epsilon: true:采用epsilon贪心策略 false:采用贪心策略
@@ -82,6 +85,7 @@ class DQNAgent(Agent):
         :param reward: 在state下执行action所获得的奖励
         :return:
         """
+
         self.mem_queue.append((state, action, next_state, reward))
 
     def _model_train(self, batch_size=64, alpha=0.99, gamma=0.95):
@@ -95,6 +99,11 @@ class DQNAgent(Agent):
         if len(self.mem_queue) < self.mem_size:
             return
 
+        self.train_times += 1
+        # 更新目标网络参数
+        if self.train_times % self.update_freq == 0:
+            self.target_model.set_weights(self.model.get_weights())
+
         # 在记忆中随机采样经历来训练网络
         mem_batch = random.sample(self.mem_queue, batch_size)
         state_batch = np.array([train[0] for train in mem_batch])
@@ -102,7 +111,7 @@ class DQNAgent(Agent):
 
         # 利用已有的模型估计当前状态和下一状态的状态动作价值函数值
         q_state = self.model.predict(state_batch)
-        q_next_state = self.model.predict(next_state_batch)
+        q_next_state = self.target_model.predict(next_state_batch)
 
         # 利用下一状态的估计Q值更新当前状态的Q值
         for i, mem in enumerate(mem_batch):
@@ -128,8 +137,7 @@ class DQNAgent(Agent):
                 if cur_episode > render_episode:
                     self.env.render()
                 action = self.policy(state, True, cur_episode)
-                next_state, reward, id_done, info = self.action(action)
-                print(is_done)
+                next_state, reward, is_done, info = self.action(action)
                 rewards_pre_episode += reward
 
                 self._remember(state, action, next_state, reward)  # 记住经历
@@ -137,5 +145,5 @@ class DQNAgent(Agent):
 
                 state = next_state
 
-            print("episode {0} is and {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
+            print("episode {0} is {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
             self.rewards.append(rewards_pre_episode)
