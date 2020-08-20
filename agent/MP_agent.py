@@ -34,12 +34,8 @@ class MPAgent(TDAgent):
             self._assert_q(self.Qr, s0)
             self._assert_q(self.Qp, s0)
             is_done = False
-            step = 0
             rewards_pre_episode = 0
             while not is_done:
-                step += 1
-                if cur_episode > render_episode:
-                    self.env.render()
                 # a0 = self.policy(self._get_qs(s0), use_epsilon=True, episode=cur_episode)
                 a0 = self.temperature(self._get_qs(s0), episode=cur_episode)
                 s1, r, is_done, info = self.action(a0)
@@ -57,6 +53,9 @@ class MPAgent(TDAgent):
                 self._set_q(self.Qr, s0, a0, old_qr + alpha * (delta_r - old_qr))
                 self._set_q(self.Qp, s0, a0, old_qp + alpha * (delta_p - old_qp))
                 self.obs = s0 = s1
+
+                if cur_episode > render_episode:
+                    self.env.render()
 
             print("episode {0} is and {1} rewards.".format(cur_episode, rewards_pre_episode))
             self.rewards.append(rewards_pre_episode)

@@ -25,8 +25,6 @@ class SarsaAgent(TDAgent):
             is_done = False  # 判断episode是否结束
             rewards_pre_episode = 0
             while not is_done:  # 执行到episode结束
-                if cur_episode > render_episode:  # 渲染环境的步数，减少训练时间
-                    self.env.render()
                 s1, r1, is_done, info = self.action(a0)  # 执行动作，获取结果
                 rewards_pre_episode = round(r1 + rewards_pre_episode, 1)
                 self._assert_q(self.Q, s1)
@@ -39,6 +37,9 @@ class SarsaAgent(TDAgent):
                 self._set_q(self.Q, s0, a0, old_q + alpha * (delta - old_q))
                 s0, a0 = s1, a1
                 self.obs = s0
+
+                if cur_episode > render_episode:  # 渲染环境的步数，减少训练时间
+                    self.env.render()
 
             print("episode {0} is {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
             self.rewards.append(rewards_pre_episode)

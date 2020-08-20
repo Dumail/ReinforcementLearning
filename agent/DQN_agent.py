@@ -42,9 +42,10 @@ class DQNAgent(Agent):
         :return: 网络模型
         """
         model = keras.models.Sequential()
-        model.add(keras.layers.Dense(100, input_dim=self.state_dim, activation='relu'))
+        model.add(keras.layers.Dense(60, input_dim=self.state_dim, activation='relu'))
+        model.add(keras.layers.Dense(20, activation='relu'))
         model.add(keras.layers.Dense(self.action_dim, activation='relu'))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(0.001))
+        model.compile(loss='mse', optimizer='adam')
         return model
 
     def policy(self, state, use_epsilon, episode):
@@ -56,7 +57,7 @@ class DQNAgent(Agent):
         :param episode: 当前的episode数
         :return: 选择的动作
         """
-        epsilon = 1.0 / (episode + 1)
+        epsilon = 1.0 / (episode * 0.2 + 1)
         if not use_epsilon or random.random() > epsilon:
             return np.argmax(self.model.predict(np.array([state]))[0])
         else:
@@ -88,7 +89,7 @@ class DQNAgent(Agent):
 
         self.mem_queue.append((state, action, next_state, reward))
 
-    def _model_train(self, batch_size=64, alpha=0.99, gamma=0.95):
+    def _model_train(self, batch_size=64, alpha=1, gamma=0.95):
         """
         训练网络模型
 
@@ -103,6 +104,7 @@ class DQNAgent(Agent):
         # 更新目标网络参数
         if self.train_times % self.update_freq == 0:
             self.target_model.set_weights(self.model.get_weights())
+            print("model update!")
 
         # 在记忆中随机采样经历来训练网络
         mem_batch = random.sample(self.mem_queue, batch_size)
@@ -117,11 +119,11 @@ class DQNAgent(Agent):
         for i, mem in enumerate(mem_batch):
             _, action, _, reward = mem
             q_state[i][action] = q_state[i][action] + alpha * (
-                    reward + gamma * np.argmax(q_next_state[i]) - q_state[i][action])
+                    reward + gamma * np.amax(q_next_state[i]) - q_state[i][action])
 
         self.model.fit(state_batch, q_state, verbose=0)  # 利用更新后的Q值来对模型进行训练
 
-    def learning(self, gamma=0.95, alpha=0.99, max_episode=500, render_episode=-1):
+    def learning(self, gamma=0.95, alpha=1, max_episode=500, render_episode=-1):
         """
         深度Q网络学习算法
         :param gamma: 折扣

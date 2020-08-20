@@ -24,8 +24,6 @@ class QLAgent(TDAgent):
             is_done = False
             rewards_pre_episode = 0
             while not is_done:
-                if cur_episode > render_episode:
-                    self.env.render()
                 a0 = self.policy(self.Q[str(s0)], use_epsilon=True, episode=cur_episode)
                 # a0 = self.temperature(self.Q[str(s0)], episode=cur_episode)
                 s1, r1, is_done, info = self.action(a0)
@@ -39,5 +37,8 @@ class QLAgent(TDAgent):
                 self._set_q(self.Q, s0, a0, old_q + alpha * (delta - old_q))  # 异策略更新
                 self.obs = s0 = s1
 
-            print("episode {0} is and {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
+                if cur_episode > render_episode:
+                    self.env.render()  # 渲染环境
+
+            print("episode {0} is {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
             self.rewards.append(rewards_pre_episode)

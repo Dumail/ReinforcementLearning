@@ -53,12 +53,8 @@ class SQLAgent(TDAgent):
             self._assert_q(self.Q1, s0)
             self._assert_q(self.Q2, s0)
             is_done = False
-            step = 0
             rewards_pre_episode = 0
             while not is_done:
-                step += 1
-                if cur_episode > render_episode:
-                    self.env.render()
                 a0 = self.policy(self._get_qs(s0), use_epsilon=True, episode=cur_episode)
                 s1, r, is_done, info = self.action(a0)
                 rewards_pre_episode = round(r + rewards_pre_episode, 1)
@@ -76,6 +72,9 @@ class SQLAgent(TDAgent):
                 self._set_q(self.Q1, s0, a0, self.lambda1 * old_q1 + alpha * (delta1 - old_q1))
                 self._set_q(self.Q2, s0, a0, self.lambda2 * old_q2 + alpha * (delta2 - old_q2))
                 self.obs = s0 = s1
+
+                if cur_episode > render_episode:
+                    self.env.render()
 
             print("episode {0} is and {1} rewards.".format(cur_episode, rewards_pre_episode))
             self.rewards.append(rewards_pre_episode)

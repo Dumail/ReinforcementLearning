@@ -110,3 +110,41 @@ class TDAgent(Agent):
     def _get_q(self, q, s, a):
         self._assert_q(q, s)
         return q[str(s)][a]
+
+    def change_env(self, env: Env):
+        """
+        改变所在的环境
+
+        :param env: 目标环境
+        """
+        self.env = env
+        self.action_space = env.action_space  # 智能体的行为空间由环境决定
+
+    def test(self, times=1, render_time=-1):
+        """
+        测试训练好的策略
+
+        :param times: 测试轮数
+        :return 训练结果列表
+        """
+        print("Test starting!")
+        test_results = []
+        for cur_time in range(times):
+            s0 = self.obs = self.env.reset()
+            is_done = False
+            rewards_pre_time = 0  # 每次测试的累计奖励
+
+            while not is_done:
+                self._assert_q(self.Q, s0)
+                a0 = self.policy(self.Q[str(s0)], use_epsilon=False)
+                s1, r1, is_done, info = self.action(a0)
+                rewards_pre_time = round(r1 + rewards_pre_time, 1)
+                self.obs = s0 = s1
+
+                if cur_time > render_time:
+                    self.env.render()
+
+            print("Test time {0} is {1:.1f} rewards.".format(cur_time, rewards_pre_time))
+            test_results.append(rewards_pre_time)
+        print("Test end!")
+        return test_results
