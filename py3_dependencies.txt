@@ -3,4 +3,5 @@
 numpy
 matplotlib
 gym
-tensorflow
+pytorch
+tensorboardX

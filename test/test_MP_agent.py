@@ -2,9 +2,10 @@
 # @Time : 2020/8/16 17:39
 # @Author: PCF
 from unittest import TestCase
-from environment.gridworld import *
+
 from agent.MP_agent import *
-from utils.vis import *
+from common.vis import *
+from environment.gridworld import *
 
 
 # @File : test_MP_agent.py

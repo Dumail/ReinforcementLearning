@@ -2,9 +2,10 @@
 # @Time : 2020/8/1 16:37
 # @Author: PCF
 from unittest import TestCase
-from environment.gridworld import *
+
 from agent.QL_agent import *
-from utils.vis import *
+from common.vis import *
+from environment.gridworld import *
 
 
 # @File : test_QL_agent.py

@@ -2,9 +2,10 @@
 # @Time : 2020/8/1 16:22
 # @Author: PCF
 from unittest import TestCase
+
 from agent.SARSA_agent import *
+from common.vis import *
 from environment.gridworld import *
-from utils.vis import *
 
 
 # @File : test_SARSA_agent.py

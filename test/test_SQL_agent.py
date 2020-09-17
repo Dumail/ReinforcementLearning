@@ -2,9 +2,10 @@
 # @Time : 2020/8/1 16:52
 # @Author: PCF
 from unittest import TestCase
-from environment.gridworld import *
+
 from agent.SQL_agent import *
-from utils.vis import *
+from common.vis import *
+from environment.gridworld import *
 
 
 # @File : test_SQL_agent.py
