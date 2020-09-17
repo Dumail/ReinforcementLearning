@@ -53,11 +53,11 @@ class SQLAgent(TDAgent):
             self._assert_q(self.Q1, s0)
             self._assert_q(self.Q2, s0)
             is_done = False
-            rewards_pre_episode = 0
+            reward_cur_episode = 0
             while not is_done:
                 a0 = self.policy(self._get_qs(s0), use_epsilon=True, episode=cur_episode)
                 s1, r, is_done, info = self.action(a0)
-                rewards_pre_episode = round(r + rewards_pre_episode, 1)
+                reward_cur_episode = round(r + reward_cur_episode, 1)
                 self._assert_q(self.Q1, s1)
                 self._assert_q(self.Q2, s1)
                 # 在两个q中分别通过贪心策略选择目标动作
@@ -76,5 +76,5 @@ class SQLAgent(TDAgent):
                 if cur_episode > render_episode:
                     self.env.render()
 
-            print("episode {0} is and {1} rewards.".format(cur_episode, rewards_pre_episode))
-            self.rewards.append(rewards_pre_episode)
+            print("episode {0} is and {1} rewards.".format(cur_episode, reward_cur_episode))
+            self.rewards.append(reward_cur_episode)

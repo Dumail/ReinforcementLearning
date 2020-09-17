@@ -23,10 +23,10 @@ class SarsaAgent(TDAgent):
             self._assert_q(self.Q, s0)
             a0 = self.policy(self.Q[str(s0)], use_epsilon=True, episode=cur_episode)  # 选择起点处的动作
             is_done = False  # 判断episode是否结束
-            rewards_pre_episode = 0
+            reward_cur_episode = 0
             while not is_done:  # 执行到episode结束
                 s1, r1, is_done, info = self.action(a0)  # 执行动作，获取结果
-                rewards_pre_episode = round(r1 + rewards_pre_episode, 1)
+                reward_cur_episode = round(r1 + reward_cur_episode, 1)
                 self._assert_q(self.Q, s1)
                 a1 = self.policy(self.Q[str(s1)], use_epsilon=True, episode=cur_episode)  # epsilon贪心策略选择下一步要执行的动作
                 old_q = self._get_q(self.Q, s0, a0)
@@ -41,5 +41,5 @@ class SarsaAgent(TDAgent):
                 if cur_episode > render_episode:  # 渲染环境的步数，减少训练时间
                     self.env.render()
 
-            print("episode {0} is {1:.1f} rewards.".format(cur_episode, rewards_pre_episode))
-            self.rewards.append(rewards_pre_episode)
+            print("episode {0} is {1:.1f} rewards.".format(cur_episode, reward_cur_episode))
+            self.rewards.append(reward_cur_episode)
