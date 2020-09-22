@@ -15,8 +15,8 @@ from tensorboardX import SummaryWriter
 from tqdm import trange
 
 from agent.Agent import Agent
-from common.Memory import Memory
-from common.Networks import NetThreeLayer
+from common.memory import Memory
+from common.networks import NetThreeLayer
 
 
 class DQNAgent(Agent):
@@ -65,12 +65,12 @@ class DQNAgent(Agent):
         self.target_net.eval()  # 目标网络设为评估模式，不需要反向传播
 
         self.optimizer = torch.optim.Adam(self.net.parameters())  # 优化器
-        self.loss_func = torch.nn.MSELoss()
+        self.loss_func = torch.nn.functional.mse_loss
 
-        self.writer = SummaryWriter(log_dir='../logs/'.format(self.__class__.__name__))
+        self.writer = SummaryWriter(log_dir='../logs/{}/'.format(self.__class__.__name__))
         # 可视化网络模型
-        # with self.writer:
-        #     self.writer.add_graph(self.net, (torch.FloatTensor(self.env.reset()).to(self.device),))
+        with self.writer:
+            self.writer.add_graph(self.net, (torch.FloatTensor(self.env.reset()).to(self.device),))
 
     def policy(self, state: np.ndarray, is_test=False) -> np.ndarray:
         """

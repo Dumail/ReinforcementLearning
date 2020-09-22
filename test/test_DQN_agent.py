@@ -31,4 +31,4 @@ class TestDQNAgent(unittest.TestCase):
     def test_test(self):
         self.agent.load_net(self.path)
         avg_score = self.agent.test(10)
-        print("DQN test average score is ", avg_score)
+        logging.info("DQN test average score is {}".format(avg_score))

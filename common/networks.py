@@ -3,7 +3,7 @@
 # @Time    : 2020/9/14 10:10
 # @Author  : PCF
 # @Email   : pan.chaofan@foxmail.com
-# @File    : Networks.py
+# @File    : networks.py
 # @Software: PyCharm
 import numpy as np
 import torch
