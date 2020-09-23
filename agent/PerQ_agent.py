@@ -106,7 +106,7 @@ class PerQAgent(DQNAgent):
 
         with trange(max_episode) as t:
             for cur_episode in t:
-                t.set_description("Train episode: %d" % cur_episode)  # 设置进度条标题
+                t.set_description("%s train episode: %d" % (self.__class__.__name__, cur_episode))  # 设置进度条标题
 
                 score = 0
                 state = self.env.reset()  # 初始化每个episode的状态

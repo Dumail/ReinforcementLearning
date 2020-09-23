@@ -58,19 +58,34 @@ class DQNAgent(Agent):
         logging.info('Use device is {}'.format(self.device))
 
         # 优化网络与目标网络
-        self.net = NetThreeLayer(self.state_shape, self.action_shape, self.device).to(self.device)
-
-        self.target_net = NetThreeLayer(self.state_shape, self.action_shape, self.device).to(self.device)
+        self.net = self.create_net()
+        self.target_net = self.create_net()
         self.target_net.load_state_dict(self.net.state_dict())  # 参数相同
         self.target_net.eval()  # 目标网络设为评估模式，不需要反向传播
 
         self.optimizer = torch.optim.Adam(self.net.parameters())  # 优化器
         self.loss_func = torch.nn.functional.mse_loss
 
+        # tensorboard记录器
         self.writer = SummaryWriter(log_dir='../logs/{}/'.format(self.__class__.__name__))
+
+    def create_net(self):
+        """
+        创建神经网络
+        :return:网络模型
+        """
+        return NetThreeLayer(self.state_shape, self.action_shape, self.device).to(self.device)
+
+    def add_graph(self):
+        """
+        记录图结构
+        """
         # 可视化网络模型
         with self.writer:
-            self.writer.add_graph(self.net, (torch.FloatTensor(self.env.reset()).to(self.device),))
+            samples = self.memory.sample()
+            states = torch.FloatTensor(samples["obs"]).to(self.device)
+            # writer.add_graph(self.net, (torch.FloatTensor(self.env.reset()).to(self.device),))
+            self.writer.add_graph(self.net, states)
 
     def policy(self, state: np.ndarray, is_test=False) -> np.ndarray:
         """
@@ -170,7 +185,7 @@ class DQNAgent(Agent):
 
         with trange(max_episode) as t:
             for cur_episode in t:
-                t.set_description("Train episode: %d" % cur_episode)  # 设置进度条标题
+                t.set_description("%s train episode: %d" % (self.__class__.__name__, cur_episode))  # 设置进度条标题
 
                 score = 0
                 state = self.env.reset()  # 初始化每个episode的状态
@@ -193,6 +208,7 @@ class DQNAgent(Agent):
                 logging.debug('episode: {},score:{}'.format(cur_episode, score))
                 t.set_postfix(loss=loss, score=score)  # 进度条相关信息
 
+            self.add_graph()
             if self.path:
                 self.save_net(self.path)  # 存储参数
 

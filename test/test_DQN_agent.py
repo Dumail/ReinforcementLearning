@@ -26,7 +26,7 @@ class TestDQNAgent(unittest.TestCase):
         logging.info('DQN test ended!')
 
     def test_learning(self):
-        self.agent.learning(max_episode=100)
+        self.agent.learning(max_episode=300)
 
     def test_test(self):
         self.agent.load_net(self.path)
