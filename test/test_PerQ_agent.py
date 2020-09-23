@@ -18,6 +18,7 @@ class TestPerQAgent(TestCase):
         logging.basicConfig(level=logging.INFO)
         logging.info('DQN test starting...')
         env = gym.make('CartPole-v0')
+        # env = MountainCarWrapper(gym.make('MountainCar-v0'))
         self.path = '../weights/per_dqn.pth'
         self.agent = PerQAgent(env, memory_size=1000, batch_size=32, update_pred=100,
                                epsilon_decay=1 / 2000, path=self.path)
